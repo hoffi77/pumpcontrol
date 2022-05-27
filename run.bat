@@ -1,0 +1,1 @@
+c:\dev\sapmachine-jdk-11.0.14\bin\java -classpath target\* de.alijas.cmd.ExecutorKt pumpcontrol.properties
