@@ -4,12 +4,14 @@ import jakarta.ws.rs.client.Client
 import jakarta.ws.rs.client.ClientBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.text.SimpleDateFormat
 import java.util.*
 
 
 class PumpOnOffTask(private val config: PowerOnOffConfiguration) : TimerTask() {
-    var logger: Logger = LoggerFactory.getLogger(PumpOnOffTask::class.java)
-    val client: Client = ClientBuilder.newClient()
+    private val timeFormatter = SimpleDateFormat("HH:mm:ss")
+    private var logger: Logger = LoggerFactory.getLogger(PumpOnOffTask::class.java)
+    private val client: Client = ClientBuilder.newClient()
 
     override fun run() {
         startPump()
@@ -18,7 +20,7 @@ class PumpOnOffTask(private val config: PowerOnOffConfiguration) : TimerTask() {
     }
 
     private fun startPump() {
-        logger.info("Starting Pump")
+        logger.info("Starting Pump (Next start will @ ${getNextPowerOnTime()})")
         executeGetCall(config.powerOnCommand)
     }
 
@@ -34,6 +36,12 @@ class PumpOnOffTask(private val config: PowerOnOffConfiguration) : TimerTask() {
             .get()
 
         logger.debug(get.readEntity(String::class.java))
+    }
+
+    private fun getNextPowerOnTime() : String {
+        val timeInMillis: Long = Date().time
+        val dateAfterAddingDelay = Date(timeInMillis + config.delayInMinutes * 60 * 1000)
+        return timeFormatter.format(dateAfterAddingDelay)
     }
 
 }
